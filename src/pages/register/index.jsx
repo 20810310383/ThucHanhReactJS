@@ -28,8 +28,10 @@ const RegisterPage = () => {
             navigate('/login')
         } else {
             notification.error({
-                message: "đăng ký người dùng",
-                description: JSON.stringify(res.message)
+                message: "Có lỗi xảy ra",
+                description:
+                    res.message && Array.isArray(res.message) ? res.message[0] : res.message,
+                duration: 5
             })
         }
 

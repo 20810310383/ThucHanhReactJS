@@ -1,6 +1,7 @@
+import { ClearOutlined, SearchOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, theme } from "antd"
 
-const InputSearch = () => {
+const InputSearch = (props) => {
 
     const { token } = theme.useToken();
     const [form] = Form.useForm()
@@ -14,6 +15,22 @@ const InputSearch = () => {
 
     const onFinish = (values) => {
         console.log('Received values of form: ', values);
+
+        let query = ''
+        if(values.fullName){
+            query += `&fullName=/${values.fullName}/i`
+        }
+        if(values.email){
+            query += `&email=/${values.email}/i`
+        }
+        if(values.phone){
+            query += `&phone=/${values.phone}/i`
+        }
+        if (query) {
+            props.handleSearch(query);
+        }
+
+
     };
 
 
@@ -72,10 +89,17 @@ const InputSearch = () => {
                 </Row>
                 <Row >
                     <Col span={24} style={{textAlign: "right"}}>
-                        <Button type="primary" htmlType="submit">
+                        <Button type="primary" htmlType="submit" size="large" icon={<SearchOutlined />}>
                             Search
                         </Button>
-                        <Button style={{margin: "0 20px"}} onClick={() => form.resetFields()}>
+                        <Button 
+                            style={{margin: "0 20px"}} 
+                            onClick={() => {
+                                form.resetFields();
+                                props.setFilter("");
+                            }
+                            } 
+                            size="large"  icon={<ClearOutlined />}>
                             Clear
                         </Button>
 

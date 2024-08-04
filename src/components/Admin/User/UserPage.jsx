@@ -1,8 +1,11 @@
-import { Col, Pagination, Popconfirm, Row, Space, Table } from "antd"
+import { Button, Col, Pagination, Popconfirm, Row, Space, Table, message, notification, theme } from "antd"
 import InputSearch from "./InputSearch";
 import { useEffect, useState } from "react";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { callFetchListUser } from "../../../services/api";
+import { CloudUploadOutlined, DeleteOutlined, EditOutlined, ExportOutlined, EyeOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons";
+import { callFetchListUser, deleteUserAPI } from "../../../services/api";
+import { IoMdAdd } from "react-icons/io";
+import ViewUser from "./UserView";
+import moment from "moment";
 
 const UserPage = () => {
 
@@ -11,21 +14,62 @@ const UserPage = () => {
     const [pageSize, setPageSize] = useState(5)
     const [total, setTotal] = useState(0)
     const [loadingTable, setLoadingTable] = useState(false)
+    const { token } = theme.useToken();
+    const formStyle = {
+        maxWidth: 'none',
+        background: token.colorFillAlter,
+        borderRadius: token.borderRadiusLG,
+        padding: 24,
+        
+    };
+    const [openDrawer, setOpenDrawer] = useState(false);
+    const [dataDetail, setDataDetail] = useState(null);
+
+    const [filter, setFilter] = useState("");
+    const [sortQuery, setSortQuery] = useState("");
+    
 
     useEffect(() => {
         fetchUsers()
-    }, [current, pageSize])
+    }, [current, pageSize, filter, sortQuery])
 
+    // dùng khi sắp xếp 
     const fetchUsers = async () => {
+        setLoadingTable(true)
+        let query = `current=${current}&pageSize=${pageSize}`;
+        if (filter) {
+            query += `&${filter}`;
+        }
+        if (sortQuery) {
+            query += `&${sortQuery}`;
+        }
+
+        const res = await callFetchListUser(query);
+        if (res && res.data) {
+            setDataUsers(res.data.result);
+            setTotal(res.data.meta.total)
+        }
+        setLoadingTable(false)
+    }
+
+    // dùng khi không sắp xếp
+    // useEffect(() => {
+    //     fetchUsers()
+    // }, [current, pageSize])
+
+    const fetchUsers1 = async (searchFilter) => {
 
         setLoadingTable(true)
-        const res = await callFetchListUser(current, pageSize)
-        console.log("res user: ", res);
+        let query = `current=${current}&pageSize=${pageSize}`
+        if(searchFilter){
+            query += `${searchFilter}`
+        }
+        
+        const res = await callFetchListUser(query)
         if(res && res.data){
             setDataUsers(res.data.result)
-            setTotal(res.data.meta.total)
-            setCurrent(res.data.meta.current)
-            setPageSize(res.data.meta.pageSize)
+            setTotal(res.data.meta.total)            
+            console.log("res user: ", res);
         }
         setLoadingTable(false)
     }
@@ -36,7 +80,7 @@ const UserPage = () => {
             dataIndex: 'stt',
             key: 'stt',
             render: (_, record, index) => {
-              console.log("index: ", index+1);
+            //   console.log("index: ", index+1);
               return (
                 <>
                   {(index+1) + (current - 1) * pageSize}
@@ -44,25 +88,23 @@ const UserPage = () => {
               )
             } 
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            sorter: true,
-            key: '_id',
-            render: (_, record) => {
-                return (
-                <>
-                    <a onClick={() => {
-                    // setIsDetailOpen(true)
-                    // setDataDetail(record)
-                    alert(record._id)
-                    }}>
-                        {record._id}
-                    </a>
-                </>
-                )
-            } 
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: '_id',
+        //     key: '_id',
+        //     render: (_, record) => {
+        //         return (
+        //         <>
+        //             <a onClick={() => {
+        //                 setOpenDrawer(true)
+        //                 setDataDetail(record)
+        //             }}>
+        //                 {record._id}
+        //             </a>
+        //         </>
+        //         )
+        //     } 
+        // },
         {
             title: 'Tên hiển thị',
             dataIndex: 'fullName',
@@ -76,7 +118,17 @@ const UserPage = () => {
         {
             title: 'Số Điện Thoại',
             dataIndex: 'phone',
-            sorter: true
+        }, 
+        {
+            title: 'Ngày cập nhật',
+            dataIndex: 'updatedAt',
+            sorter: true,
+            render: (text, record, index) => {
+                return (
+                    <>{moment(record.updatedAt).format('DD-MM-YYYY hh:mm:ss')}</>
+                )
+            }
+
         }, 
         {
             title: 'Action',
@@ -84,6 +136,13 @@ const UserPage = () => {
             key: 'action',
             render: (_, record) => (          
                 <Space size="middle">
+
+                <EyeOutlined style={{color: "green", fontWeight: "bold", cursor: "pointer"}} 
+                    onClick={() => {
+                        setOpenDrawer(true)
+                        setDataDetail(record)
+                    }} 
+                />
       
                   <EditOutlined style={{color: "orange"}} onClick={() => {
                     console.log("record update: ", record);
@@ -94,10 +153,10 @@ const UserPage = () => {
                 <Popconfirm
                     title="Xoá user"
                     description="Bạn có chắc chắn muốn xoá?"
-                    onConfirm={() => {alert("xoá")}}
+                    onConfirm={() => handleDeleteUser(record._id)}
                     onCancel={cancelXoa}
-                    okText="Yes"
-                    cancelText="No"
+                    okText="Xác nhận xoá"
+                    cancelText="Không Xoá"
                   >
                     <DeleteOutlined style={{color: "red"}} />
                   </Popconfirm>
@@ -105,84 +164,140 @@ const UserPage = () => {
                 </Space>
               ),
         },        
-      ];
-      const data = [
-        {
-            key: '1',
-            name: 'John Brown',
-            chinese: 98,
-            math: 60,
-            english: 70,
-        },
-        {
-            key: '2',
-            name: 'AJim Green',
-            chinese: 98,
-            math: 66,
-            english: 89,
-        },
-        {
-            key: '3',
-            name: 'GJoe Black',
-            chinese: 98,
-            math: 90,
-            english: 70,
-        },
-        {
-            key: '4',
-            name: 'MJim Red',
-            chinese: 88,
-            math: 99,
-            english: 89,
-        },
     ];
+
+    const handleDeleteUser = async (id) => {
+        try{
+            const res = await deleteUserAPI(id)
+            if(res.data){
+                notification.success({
+                    message: "Xoá tài khoản user",
+                    description: "Bạn đã xoá thành công"
+                })
+                await fetchUsers()
+            } else {
+                notification.error({
+                    message: "Xoá tài khoản user",
+                    description: JSON.stringify(res.message)
+                })
+            }
+
+        } catch(error) {
+
+        }        
+    }
 
     const cancelXoa = (e) => {
         console.log(e);
         message.error('Huỷ xoá');
-      };    
+    };    
 
-    const onChangePagination = (page, pageSize) => {
-        setCurrent(page);
-        setPageSize(pageSize);
+    // sử dụng khi dùng phân trang tại table antd
+    const onChange = (pagination, filters, sorter, extra) => {
+        console.log('Pagination Change:', { pagination, filters, sorter, extra });
+
+        // if (pagination && pagination.current !== current) {
+        //     setCurrent(pagination.current)
+        // }
+        // if (pagination && pagination.pageSize !== pageSize) {
+        //     setPageSize(pagination.pageSize)
+        //     setCurrent(1);
+        // }
+        if (sorter && sorter.field) {
+            const q = sorter.order === 'ascend' ? `sort=${sorter.field}` : `sort=-${sorter.field}`;
+            setSortQuery(q);
+        }
+
     };
 
+    // sử dụng khi phân trang bên ngoài, không dùng phân trang có sẵn của table
+    const onChangePagination = (page, pageSize,  sorter = null) => {
+        console.log('Pagination Change:', { page, pageSize, sorter });
+ 
+        setCurrent(page);
+        setPageSize(pageSize);
+
+        if (sorter && sorter.field) {
+            const q = sorter.order === 'ascend' ? `sort=${sorter.field}` : `sort=-${sorter.field}`;
+            setSortQuery(q);
+        }
+    };    
+
+    const handleSearch = (query) => {
+        // fetchUsers(query)
+        setFilter(query)
+    }
 
     return (
        <>
             <Row gutter={[20, 20]}>
                 <Col span={24}>
-                    <InputSearch />
+                    <InputSearch handleSearch={handleSearch} setFilter={setFilter}  />
                 </Col>
                 <Col span={24}>
-                    <Table
-                        rowKey={"_id"} 
-                        className='def'
-                        columns={columns}
-                        dataSource={dataUsers}
-                        // onChange={onChange}
-                        // pagination={{
-                        //     current: current,
-                        //     pageSize: pageSize,
-                        //     showSizeChanger: true,
-                        //     total: total,
-                        //     showTotal: (total, range) => { return (<div> {range[0]}-{range[1]} trên {total} rows</div>) }
-                        // }}
-                        pagination={false}  // Tắt phân trang mặc định của Table
-                        loading={loadingTable}
-                    />
-                    <br />
-                    <Pagination
-                        current={current}
-                        pageSize={pageSize}
-                        total={total}
-                        onChange={onChangePagination}  // Gọi hàm onChangePagination khi thay đổi trang
-                        showSizeChanger={true}
-                        showQuickJumper={true}
-                        showTotal={(total, range) => (
-                            <div>{range[0]}-{range[1]} trên {total} tài khoản</div>
-                        )}
-                    />
+                    <div style={formStyle}>  
+                        <span style={{
+                                float: "left", fontSize: "18px", color: "navy", fontWeight: "bold"
+                            }}>Danh sách tài khoản user</span> 
+                        <span style={{                            
+                            float: "right",
+                            marginBottom: "10px"
+                        }}>                            
+                            <Button style={{margin: "0 5px"}} type="primary" icon={<ExportOutlined />} size="large" >  Export</Button>
+                            <Button style={{margin: "0 5px"}} type="primary" icon={<CloudUploadOutlined />} size="large" >Import</Button>
+                            <Button style={{margin: "0 5px"}} type="primary" icon={<PlusOutlined />} size="large" >Thêm mới</Button>
+                            <Button type='ghost' onClick={() => fetchUsers()} size="large" title="Refresh">
+                                <ReloadOutlined />
+                            </Button>
+                        </span>
+                        
+                        <Table
+                            rowKey={"_id"} 
+                            className='def'
+                            columns={columns}
+                            dataSource={dataUsers}
+                            onChange={onChange}
+                            // pagination={{
+                            //     current: current,
+                            //     pageSize: pageSize,
+                            //     showSizeChanger: true,
+                            //     total: total,
+                            //     showTotal: (total, range) => { return (<div> {range[0]}-{range[1]} trên {total} rows</div>) }
+                            // }}
+                            pagination={false}  // Tắt phân trang mặc định của Table
+                            loading={loadingTable}
+                            footer={() => <div>{sortQuery ? `Sắp xếp theo: ${sortQuery}` : 'Chưa sắp xếp'}</div>}
+
+                        />
+                        <ViewUser                             
+                            openDrawer={openDrawer}
+                            setOpenDrawer={setOpenDrawer}
+                            dataDetail={dataDetail}
+                            setDataDetail={setDataDetail}
+                        />
+                        <br />
+                        <Pagination 
+                            style={{
+                                display: "flex",
+                                justifyContent: "center"
+                            }}
+                            current={current}
+                            pageSize={pageSize}
+                            total={total}
+                            onChange={(page, pageSize) => onChangePagination(page, pageSize)}  // Gọi hàm onChangePagination khi thay đổi trang
+                            showSizeChanger={true}
+                            showQuickJumper={true}
+                            showTotal={(total, range) => (
+                                <div>{range[0]}-{range[1]} trên {total} tài khoản</div>
+                            )}
+                            locale={{
+                                items_per_page: 'dòng / trang',  // Điều chỉnh "items per page"
+                                jump_to: 'Đến trang số',  // Điều chỉnh "Go to"
+                                jump_to_confirm: 'Xác nhận',  // Điều chỉnh "Go"
+                                page: '',  // Bỏ hoặc thay đổi chữ "Page" nếu cần
+                            }}
+                        />
+                    </div>                                        
                 </Col>
             </Row>
        </>

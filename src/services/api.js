@@ -25,8 +25,12 @@ export const callLogout = () => {
 }
 
 
-export const callFetchListUser = (current, pageSize) => {
-
-    const URL_BACKEND = `/api/v1/user?current=${current}&pageSize=${pageSize}`    
+export const callFetchListUser = (query) => {
+    const URL_BACKEND = `/api/v1/user?${query}`    
     return axios.get(URL_BACKEND)
+}
+
+export const deleteUserAPI = (_id) => { 
+    const URL_BACKEND = `/api/v1/user/${_id}`
+    return axios.delete(URL_BACKEND)
 }

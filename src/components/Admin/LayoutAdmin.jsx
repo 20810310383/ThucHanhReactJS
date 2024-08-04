@@ -1,5 +1,5 @@
 import { DownOutlined, HeartTwoTone, MenuFoldOutlined, MenuUnfoldOutlined, UploadOutlined, UserOutlined, VideoCameraOutlined } from "@ant-design/icons"
-import { Button, Dropdown, Layout, Menu, Space, message, theme } from "antd"
+import { Avatar, Button, Dropdown, Layout, Menu, Space, message, theme } from "antd"
 import Sider from "antd/es/layout/Sider"
 import { Content, Footer } from "antd/es/layout/layout"
 import React, { useState } from "react"
@@ -43,10 +43,17 @@ const LayoutAdmin = () => {
           key: 'account',
         },
         {
+            label: <Link to='/' >Trang chủ web</Link>,
+            key: 'home',
+
+        },
+        {
           label: <label onClick={() => handleLogout()} >Đăng xuất</label>,
           key: 'logout',
         },        
     ];
+
+    const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user?.avatar}`
 
     return (
         <Layout
@@ -114,8 +121,7 @@ const LayoutAdmin = () => {
                     <Dropdown menu={{ items: itemsDropdown }} trigger={['click']}>
                         <a onClick={(e) => e.preventDefault()}>
                             <Space>
-                                Welcome {user?.fullName}
-                                <DownOutlined />
+                                <Avatar src={urlAvatar} />{user?.fullName}
                             </Space>
                         </a>
                     </Dropdown>

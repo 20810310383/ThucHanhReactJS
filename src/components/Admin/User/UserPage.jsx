@@ -279,6 +279,7 @@ const UserPage = () => {
                         <UserImport 
                             setOpenModalImport={setOpenModalImport}
                             openModalImport={openModalImport}
+                            fetchUsers={fetchUsers}
                         />
 
                         <Table

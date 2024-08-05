@@ -7,6 +7,7 @@ import { IoMdAdd } from "react-icons/io";
 import ViewUser from "./UserView";
 import moment from "moment";
 import CreateUser from "./UserCreate";
+import UserImport from "./data/UserImport";
 
 const UserPage = () => {
 
@@ -30,6 +31,7 @@ const UserPage = () => {
     const [sortQuery, setSortQuery] = useState("");
 
     const [openModalCreate, setOpenModalCreate] = useState(false);
+    const [openModalImport, setOpenModalImport] = useState(false);
     
 
     useEffect(() => {
@@ -247,7 +249,15 @@ const UserPage = () => {
                             marginBottom: "10px"
                         }}>                            
                             <Button style={{margin: "0 5px"}} type="primary" icon={<ExportOutlined />} size="large" >  Export</Button>
-                            <Button style={{margin: "0 5px"}} type="primary" icon={<CloudUploadOutlined />} size="large" >Import</Button>
+                            <Button 
+                                style={{margin: "0 5px"}} 
+                                type="primary" 
+                                icon={<CloudUploadOutlined />} 
+                                size="large" 
+                                onClick={() => {
+                                    setOpenModalImport(true)
+                                }}
+                            >Import</Button>
                             <Button 
                                 style={{margin: "0 5px"}} 
                                 type="primary" icon={<PlusOutlined />} 
@@ -265,6 +275,10 @@ const UserPage = () => {
                             openModalCreate={openModalCreate} 
                             setOpenModalCreate={setOpenModalCreate}
                             fetchUsers={fetchUsers}
+                        />
+                        <UserImport 
+                            setOpenModalImport={setOpenModalImport}
+                            openModalImport={openModalImport}
                         />
 
                         <Table

@@ -1,5 +1,6 @@
 import { Col, Divider, Form, Input, Modal, Row, notification } from "antd"
 import { createUserAPI } from "../../../services/api";
+import { useState } from "react";
 
 const CreateUser = (props) => {
 
@@ -7,6 +8,8 @@ const CreateUser = (props) => {
         openModalCreate, setOpenModalCreate, fetchUsers
     } = props
     const [form] = Form.useForm()
+    const [isSubmit, setIsSubmit] = useState(false);
+
 
     const handleCancel = () => {
         setOpenModalCreate(false);
@@ -15,6 +18,7 @@ const CreateUser = (props) => {
 
     const handleCreateUser = async (value) => {        
         try {
+            setIsSubmit(true)
             console.log("value: ", value);
             const {fullName, password, email, phone} = value
             console.log("fullName, password, email, phone: ", fullName, password, email, phone);
@@ -32,6 +36,7 @@ const CreateUser = (props) => {
                     description: JSON.stringify(res.message)
                 })
             }
+            setIsSubmit(false)
         } catch(error){
             notification.error({
                 message: "Error",
@@ -50,6 +55,7 @@ const CreateUser = (props) => {
                 onOk={() => form.submit()} 
                 onCancel={handleCancel} 
                 maskClosable={false}
+                confirmLoading={isSubmit}
             >
                 <Divider />
                 <Row gutter={16}>

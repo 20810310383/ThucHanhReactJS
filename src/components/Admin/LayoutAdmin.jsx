@@ -61,13 +61,13 @@ const LayoutAdmin = () => {
             className="layout-admin"
         >
 
-            <Sider theme="light" trigger={null} collapsible collapsed={collapsed}>
-                <div style={{ height: 32, margin: 16, textAlign: 'center', borderBottom: "1px solid #ebebeb", fontWeight: "bold" }}>
+            <Sider theme="dark" trigger={null} collapsible collapsed={collapsed}>
+                <div style={{ height: 32, margin: 16, textAlign: 'center', borderBottom: "1px solid #ebebeb", fontWeight: "bold", color: "white" }}>
                     ADMIN
                 </div>
 
                 <Menu
-                    theme="light"
+                    theme="dark"
                     mode="inline"
                     onClick={(e) => setActiveMenu(e.key)}
                     defaultSelectedKeys={[activeMenu]}

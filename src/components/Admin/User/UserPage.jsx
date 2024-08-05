@@ -6,6 +6,7 @@ import { callFetchListUser, deleteUserAPI } from "../../../services/api";
 import { IoMdAdd } from "react-icons/io";
 import ViewUser from "./UserView";
 import moment from "moment";
+import CreateUser from "./UserCreate";
 
 const UserPage = () => {
 
@@ -27,6 +28,8 @@ const UserPage = () => {
 
     const [filter, setFilter] = useState("");
     const [sortQuery, setSortQuery] = useState("");
+
+    const [openModalCreate, setOpenModalCreate] = useState(false);
     
 
     useEffect(() => {
@@ -245,12 +248,25 @@ const UserPage = () => {
                         }}>                            
                             <Button style={{margin: "0 5px"}} type="primary" icon={<ExportOutlined />} size="large" >  Export</Button>
                             <Button style={{margin: "0 5px"}} type="primary" icon={<CloudUploadOutlined />} size="large" >Import</Button>
-                            <Button style={{margin: "0 5px"}} type="primary" icon={<PlusOutlined />} size="large" >Thêm mới</Button>
+                            <Button 
+                                style={{margin: "0 5px"}} 
+                                type="primary" icon={<PlusOutlined />} 
+                                size="large" 
+                                onClick={() => {
+                                    setOpenModalCreate(true)
+                                }}
+                            >Thêm mới</Button>
                             <Button type='ghost' onClick={() => fetchUsers()} size="large" title="Refresh">
                                 <ReloadOutlined />
                             </Button>
                         </span>
                         
+                        <CreateUser 
+                            openModalCreate={openModalCreate} 
+                            setOpenModalCreate={setOpenModalCreate}
+                            fetchUsers={fetchUsers}
+                        />
+
                         <Table
                             rowKey={"_id"} 
                             className='def'
@@ -266,7 +282,7 @@ const UserPage = () => {
                             // }}
                             pagination={false}  // Tắt phân trang mặc định của Table
                             loading={loadingTable}
-                            footer={() => <div>{sortQuery ? `Sắp xếp theo: ${sortQuery}` : 'Chưa sắp xếp'}</div>}
+                            // footer={() => <div>{sortQuery ? `Sắp xếp theo: ${sortQuery}` : 'Chưa sắp xếp'}</div>}
 
                         />
                         <ViewUser                             

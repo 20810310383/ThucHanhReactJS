@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { callLogin } from "../../services/api";
 import { useDispatch } from "react-redux";
 import { doLoginAction } from "../../redux/account/accountSlice";
+import { handleLoginSuccess } from "../../utils/axios-customize";
 
 
 const LoginPage = () => {
@@ -30,6 +31,7 @@ const LoginPage = () => {
             console.log("dispatch(doLoginAction(res.data.user))", dispatch(doLoginAction(res.data.user)));
             message.success("Đăng nhập thành công")
             navigate("/")
+            handleLoginSuccess(res.data.access_token);
         }else {
             notification.error({
                 message: "Có lỗi xảy ra",

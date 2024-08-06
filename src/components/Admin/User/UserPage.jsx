@@ -8,6 +8,8 @@ import ViewUser from "./UserView";
 import moment from "moment";
 import CreateUser from "./UserCreate";
 import UserImport from "./data/UserImport";
+import * as XLSX from 'xlsx';
+
 
 const UserPage = () => {
 
@@ -233,6 +235,17 @@ const UserPage = () => {
         setFilter(query)
     }
 
+    const handleExportData = () => {
+        // https://stackoverflow.com/questions/70871254/how-can-i-export-a-json-object-to-excel-using-nextjs-react
+        if (dataUsers.length > 0) {
+            const worksheet = XLSX.utils.json_to_sheet(dataUsers);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+            XLSX.writeFile(workbook, "ExportUser.csv");
+        }
+    }
+
+
     return (
        <>
             <Row gutter={[20, 20]}>
@@ -248,7 +261,13 @@ const UserPage = () => {
                             float: "right",
                             marginBottom: "10px"
                         }}>                            
-                            <Button style={{margin: "0 5px"}} type="primary" icon={<ExportOutlined />} size="large" >  Export</Button>
+                            <Button 
+                                style={{margin: "0 5px"}} 
+                                type="primary" 
+                                icon={<ExportOutlined />} 
+                                size="large" 
+                                onClick={() => handleExportData()}
+                            >  Export</Button>
                             <Button 
                                 style={{margin: "0 5px"}} 
                                 type="primary" 

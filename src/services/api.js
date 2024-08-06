@@ -46,3 +46,10 @@ export const createUserAPI = (fullName, password, email, phone) => {
 export const callBulkCreateUser = (data) => {
     return axios.post('/api/v1/user/bulk-create', data)
 }
+
+export const updateUserAPI = (_id, fullName, email, phone) => {
+    
+    const URL_BACKEND = "/api/v1/user"
+    const data = {_id, fullName, email, phone}
+    return axios.put(URL_BACKEND, data)
+}

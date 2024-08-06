@@ -9,6 +9,7 @@ import moment from "moment";
 import CreateUser from "./UserCreate";
 import UserImport from "./data/UserImport";
 import * as XLSX from 'xlsx';
+import UpdateUser from "./UserUpdate";
 
 
 const UserPage = () => {
@@ -34,6 +35,8 @@ const UserPage = () => {
 
     const [openModalCreate, setOpenModalCreate] = useState(false);
     const [openModalImport, setOpenModalImport] = useState(false);
+    const [openModalUpdate, setOpenModalUpdate] = useState(false);
+    const [dataUserUpdate, setDataUserUpdate] = useState(null);
     
 
     useEffect(() => {
@@ -153,8 +156,8 @@ const UserPage = () => {
       
                   <EditOutlined style={{color: "orange"}} onClick={() => {
                     console.log("record update: ", record);
-                    // setIsModalUpdate(true)
-                    // setDataUpdate(record)
+                    setOpenModalUpdate(true)
+                    setDataUserUpdate(record)
                   }} /> 
       
                 <Popconfirm
@@ -299,6 +302,13 @@ const UserPage = () => {
                             setOpenModalImport={setOpenModalImport}
                             openModalImport={openModalImport}
                             fetchUsers={fetchUsers}
+                        />
+                        <UpdateUser 
+                            openModalUpdate={openModalUpdate} 
+                            setOpenModalUpdate={setOpenModalUpdate}
+                            fetchUsers={fetchUsers}
+                            dataUserUpdate={dataUserUpdate}
+                            setDataUserUpdate={setDataUserUpdate}
                         />
 
                         <Table

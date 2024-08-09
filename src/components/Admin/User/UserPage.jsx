@@ -31,7 +31,7 @@ const UserPage = () => {
     const [dataDetail, setDataDetail] = useState(null);
 
     const [filter, setFilter] = useState("");
-    const [sortQuery, setSortQuery] = useState("");
+    const [sortQuery, setSortQuery] = useState("sort=-updatedAt");
 
     const [openModalCreate, setOpenModalCreate] = useState(false);
     const [openModalImport, setOpenModalImport] = useState(false);
@@ -142,6 +142,7 @@ const UserPage = () => {
         }, 
         {
             title: 'Action',
+            width: "150px",
             dataIndex: 'action',
             key: 'action',
             render: (_, record) => (          
@@ -205,14 +206,7 @@ const UserPage = () => {
     // sử dụng khi dùng phân trang tại table antd
     const onChange = (pagination, filters, sorter, extra) => {
         console.log('Pagination Change:', { pagination, filters, sorter, extra });
-
-        // if (pagination && pagination.current !== current) {
-        //     setCurrent(pagination.current)
-        // }
-        // if (pagination && pagination.pageSize !== pageSize) {
-        //     setPageSize(pagination.pageSize)
-        //     setCurrent(1);
-        // }
+        
         if (sorter && sorter.field) {
             const q = sorter.order === 'ascend' ? `sort=${sorter.field}` : `sort=-${sorter.field}`;
             setSortQuery(q);

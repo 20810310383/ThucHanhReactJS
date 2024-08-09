@@ -112,7 +112,11 @@ export default function App() {
         },
         {
           path: "book",
-          element: <BookPage />,
+          element: 
+          <ProtectedRoute>
+            <BookPage />
+          </ProtectedRoute>
+          
         },
       ],
     },

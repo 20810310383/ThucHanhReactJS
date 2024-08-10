@@ -5,6 +5,7 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { callFetchBook, deleteBookAPI } from "../../../services/bookAPI";
 import ViewBook from "./BookView";
+import CreateBook from "./BookCreate";
 
 const BookTable = () => {
 
@@ -27,6 +28,8 @@ const BookTable = () => {
 
     const [openDetailBook, setOpenDetailBook] = useState(false);
     const [dataDetailBook, setDataDetailBook] = useState(null)
+
+    const [openCreateBook, setOpenCreateBook] = useState(false);
 
     useEffect(() => {
         fetchListBook()
@@ -226,7 +229,7 @@ const BookTable = () => {
                                 type="primary" icon={<PlusOutlined />} 
                                 size="large" 
                                 onClick={() => {
-                                    // setOpenModalCreate(true)
+                                    setOpenCreateBook(true)
                                 }}
                             >Thêm mới</Button>
                             <Button type='ghost' onClick={() => fetchListBook()} size="large" title="Refresh">
@@ -251,6 +254,11 @@ const BookTable = () => {
                             setOpenDetailBook={setOpenDetailBook}
                             dataDetailBook={dataDetailBook}
                             setDataDetailBook={setDataDetailBook}
+                        />
+                        <CreateBook 
+                            openCreateBook={openCreateBook}
+                            setOpenCreateBook={setOpenCreateBook}
+                            fetchListBook={fetchListBook}
                         />
                         <br />
                         <Pagination 

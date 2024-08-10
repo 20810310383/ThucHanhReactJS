@@ -47,7 +47,7 @@ const ViewBook = (props) => {
 
             setFileList([imgThumbnail, ...imgSlider])
         }
-    }, dataDetailBook)
+    }, [dataDetailBook])
 
     const handleCancel = () => setPreviewOpen(false);
 
@@ -60,8 +60,6 @@ const ViewBook = (props) => {
     const handleChange = ({ fileList: newFileList }) => {
         setFileList(newFileList);
     }
-
-
 
     return (
         <Drawer
@@ -84,7 +82,14 @@ const ViewBook = (props) => {
                                     currency: 'VND',
                                     minimumFractionDigits: 0
                                 }).format(dataDetailBook.price)}
-                            </Descriptions.Item>                            
+                            </Descriptions.Item>     
+                            <Descriptions.Item label="Số lượng">
+                                {new Intl.NumberFormat('vi-VN').format(dataDetailBook.quantity ?? 0)}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Đã bán">
+                                {new Intl.NumberFormat('vi-VN').format(dataDetailBook.sold ?? 0)}
+                            </Descriptions.Item>
+                       
                             <Descriptions.Item label="Thể loại" span={2}>
                                 <Badge status="processing" text={dataDetailBook.category} />
                             </Descriptions.Item>

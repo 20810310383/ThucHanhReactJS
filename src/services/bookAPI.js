@@ -22,6 +22,14 @@ export const callCreateBook = (thumbnail, slider, mainText, author, price, sold,
     })
 }
 
+export const updateBookAPI = (id, thumbnail, slider, mainText, author, price, sold, quantity, category) => {
+    
+    const URL_BACKEND = `/api/v1/book/${id}`
+    const data = {
+        id, thumbnail, slider, mainText, author, price, sold, quantity, category
+    }
+    return axios.put(URL_BACKEND, data)
+}
 
 export const callUploadBookImg = (fileImg) => {
     const bodyFormData = new FormData();

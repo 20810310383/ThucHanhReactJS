@@ -1,14 +1,16 @@
-import { LoadingOutlined, PlusOutlined, SettingOutlined } from "@ant-design/icons";
-import { Button, Col, Divider, Form, Input, InputNumber, message, Modal, notification, Row, Select, Upload } from "antd"
+import { Col, Divider, Form, Input, InputNumber, message, Modal, notification, Row, Select, Upload } from "antd";
 import { useEffect, useState } from "react";
-import { callCreateBook, callFetchCategory, callUploadBookImg } from "../../../services/bookAPI";
+import { callFetchCategory, callUploadBookImg, updateBookAPI } from "../../../services/bookAPI";
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
+import { v4 as uuidv4 } from 'uuid';
 
-const CreateBook = (props) => {
-
+const UpdateBook = (props) => {
     const {
-        openCreateBook, setOpenCreateBook, fetchListBook
+        openUpdateBook, setOpenUpdateBook,
+        dataUpdateBook, setDataUpdateBook,
+        fetchListBook
     } = props
-    
+
     const [isSubmit, setIsSubmit] = useState(false);
     const [form] = Form.useForm()
     const [listCategory, setListCategory] = useState([])
@@ -25,6 +27,8 @@ const CreateBook = (props) => {
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
 
+    const [initForm, setInitForm] = useState(null);
+
     useEffect(() => {
         const fetchCategory = async () => {
             const res = await callFetchCategory()
@@ -39,15 +43,54 @@ const CreateBook = (props) => {
         fetchCategory()
     },[])
 
-    const handleCreate = async (values) => {
-        console.log(">>> check values: ", values);
-        console.log(">>> check data thumbnail: ", dataThumbnail);
-        console.log(">>> check data slider: ", dataSlider);
+    useEffect(() => {
+        if (dataUpdateBook?._id) {
+            const arrThumbnail = [
+                {
+                    uid: uuidv4(),
+                    name: dataUpdateBook.thumbnail,
+                    status: 'done',
+                    url: `${import.meta.env.VITE_BACKEND_URL}/images/book/${dataUpdateBook.thumbnail}`,
+                }
+            ]
 
+            const arrSlider = dataUpdateBook?.slider?.map(item => {
+                return {
+                    uid: uuidv4(),
+                    name: item,
+                    status: 'done',
+                    url: `${import.meta.env.VITE_BACKEND_URL}/images/book/${item}`,
+                }
+            })
+
+            const init = {
+                _id: dataUpdateBook._id,
+                mainText: dataUpdateBook.mainText,
+                author: dataUpdateBook.author,
+                price: dataUpdateBook.price,
+                category: dataUpdateBook.category,
+                quantity: dataUpdateBook.quantity,
+                sold: dataUpdateBook.sold,
+                thumbnail: { fileList: arrThumbnail },
+                slider: { fileList: arrSlider }
+            }
+            console.log("init: ", init);
+            
+            setInitForm(init);
+            setDataThumbnail(arrThumbnail);
+            setDataSlider(arrSlider);
+            form.setFieldsValue(init);
+        }
+        return () => {
+            form.resetFields();
+        }
+    },[dataUpdateBook])
+
+    const handleUpdateBook = async (values) => {
         if (dataThumbnail.length === 0) {
             notification.error({
                 message: 'Lỗi validate',
-                description: 'Vui lòng upload ảnh chính'
+                description: 'Vui lòng upload ảnh thumbnail'
             })
             return;
         }
@@ -59,20 +102,22 @@ const CreateBook = (props) => {
             })
             return;
         }
+        console.log("value update: ", values);
+        
 
-
-        const { mainText, author, price, sold, quantity, category } = values;
+        const { _id, mainText, author, price, sold, quantity, category } = values;
         const thumbnail = dataThumbnail[0].name;
         const slider = dataSlider.map(item => item.name);
 
         setIsSubmit(true)
-        const res = await callCreateBook(thumbnail, slider, mainText, author, price, sold, quantity, category);
+        const res = await updateBookAPI(_id, thumbnail, slider, mainText, author, price, sold, quantity, category)
         if (res && res.data) {
-            message.success('Tạo mới book thành công');
+            message.success('Cập nhật book thành công');
             form.resetFields();
             setDataSlider([]);
-            setDataThumbnail([])
-            setOpenCreateBook(false);
+            setDataThumbnail([]);
+            setInitForm(null);
+            setOpenUpdateBook(false);
             await fetchListBook()
         } else {
             notification.error({
@@ -83,19 +128,11 @@ const CreateBook = (props) => {
         setIsSubmit(false)
     }
 
-    const handleCancel = () => {
-        setOpenCreateBook(false);
-        form.resetFields();
-    }
-    const onFinishFailed = () => {
-        message.error("Lỗi khi click form")
-    }
-
     const getBase64 = (img, callback) => {
         const reader = new FileReader();
         reader.addEventListener('load', () => callback(reader.result));
         reader.readAsDataURL(img);
-    }
+    };
 
     const beforeUpload = (file) => {
         const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
@@ -107,9 +144,7 @@ const CreateBook = (props) => {
             message.error('Image must smaller than 2MB!');
         }
         return isJpgOrPng && isLt2M;
-    }
-
-
+    };
 
     const handleChange = (info, type) => {
         if (info.file.status === 'uploading') {
@@ -123,8 +158,7 @@ const CreateBook = (props) => {
                 setImageUrl(url);
             });
         }
-    }
-
+    };
 
     const handleUploadFileThumbnail = async ({ file, onSuccess, onError }) => {
         const res = await callUploadBookImg(file);
@@ -164,6 +198,12 @@ const CreateBook = (props) => {
     }
 
     const handlePreview = async (file) => {
+        if (file.url && !file.originFileObj) {
+            setPreviewImage(file.url);
+            setPreviewOpen(true);
+            setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+            return;
+        }
         getBase64(file.originFileObj, (url) => {
             setPreviewImage(url);
             setPreviewOpen(true);
@@ -171,14 +211,22 @@ const CreateBook = (props) => {
         });
     };
 
+    const handleCancel = () => {
+        setOpenUpdateBook(false);
+        form.resetFields();
+    }
+    const onFinishFailed = () => {
+        message.error("Lỗi khi click form")
+    }
+
     return (
-        <>
+         <>
             <Modal 
-                title="Thêm mới book"
-                open={openCreateBook} 
+                title="Cập nhật book"
+                open={openUpdateBook} 
                 onOk={() => form.submit()} 
                 onCancel={handleCancel}
-                okText="Xác nhận thêm mới"
+                okText="Xác nhận lưu"
                 cancelText="Hủy"
                 maskClosable={false}
                 width={"50vw"}
@@ -188,7 +236,7 @@ const CreateBook = (props) => {
                 <Form
                     form={form}
                     name="basic"                
-                    onFinish={handleCreate}
+                    onFinish={handleUpdateBook}
                     onFinishFailed={onFinishFailed}
                     autoComplete="off"
                     layout="vertical"      
@@ -198,6 +246,18 @@ const CreateBook = (props) => {
                     }}          
                 >
                     <Row gutter={15}>
+                        <Col hidden>
+                            <Form.Item
+                                hidden
+                                labelCol={{ span: 24 }}
+                                label="ID"
+                                name="_id"
+                            >
+                                <Input />
+                            </Form.Item>
+                        </Col>
+
+
                         <Col span={12}>
                             <Form.Item
                                 label="Tên sách"
@@ -326,6 +386,7 @@ const CreateBook = (props) => {
                                         onChange={handleChange}
                                         onRemove={(file) => handleRemoveFile(file, "thumbnail")}
                                         onPreview={handlePreview}
+                                        defaultFileList={initForm?.thumbnail?.fileList ?? []}
                                     >
                                         <div>
                                             {loading ? <LoadingOutlined /> : <PlusOutlined />}
@@ -349,6 +410,7 @@ const CreateBook = (props) => {
                                         onChange={(info) => handleChange(info, 'slider')}
                                         onRemove={(file) => handleRemoveFile(file, "slider")}
                                         onPreview={handlePreview}
+                                        defaultFileList={initForm?.slider?.fileList ?? []}
                                     >
                                         <div>
                                             {loadingSlider ? <LoadingOutlined /> : <PlusOutlined />}
@@ -367,4 +429,4 @@ const CreateBook = (props) => {
     )
 }
 
-export default CreateBook
+export default UpdateBook

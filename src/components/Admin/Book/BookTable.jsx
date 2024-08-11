@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { callFetchBook, deleteBookAPI } from "../../../services/bookAPI";
 import ViewBook from "./BookView";
 import CreateBook from "./BookCreate";
+import UpdateBook from "./BookUpdate";
 
 const BookTable = () => {
 
@@ -30,6 +31,9 @@ const BookTable = () => {
     const [dataDetailBook, setDataDetailBook] = useState(null)
 
     const [openCreateBook, setOpenCreateBook] = useState(false);
+    
+    const [openUpdateBook, setOpenUpdateBook] = useState(false);
+    const [dataUpdateBook, setDataUpdateBook] = useState(false);
 
     useEffect(() => {
         fetchListBook()
@@ -174,7 +178,8 @@ const BookTable = () => {
         
                     <EditOutlined style={{color: "orange"}} onClick={() => {
                         console.log("record update: ", record);
-                        
+                        setOpenUpdateBook(true)
+                        setDataUpdateBook(record)
                     }} /> 
         
                     <Popconfirm
@@ -258,6 +263,14 @@ const BookTable = () => {
                         <CreateBook 
                             openCreateBook={openCreateBook}
                             setOpenCreateBook={setOpenCreateBook}
+                            fetchListBook={fetchListBook}
+                        />
+    
+                        <UpdateBook 
+                            openUpdateBook={openUpdateBook}
+                            setOpenUpdateBook={setOpenUpdateBook}
+                            dataUpdateBook={dataUpdateBook}
+                            setDataUpdateBook={setDataUpdateBook}
                             fetchListBook={fetchListBook}
                         />
                         <br />

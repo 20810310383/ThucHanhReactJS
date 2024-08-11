@@ -7,6 +7,7 @@ import { callFetchBook, deleteBookAPI } from "../../../services/bookAPI";
 import ViewBook from "./BookView";
 import CreateBook from "./BookCreate";
 import UpdateBook from "./BookUpdate";
+import * as XLSX from 'xlsx';
 
 const BookTable = () => {
 
@@ -198,6 +199,16 @@ const BookTable = () => {
         },        
     ];
 
+    const handleExportData = () => {
+        // https://stackoverflow.com/questions/70871254/how-can-i-export-a-json-object-to-excel-using-nextjs-react
+        if (dataBook.length > 0) {
+            const worksheet = XLSX.utils.json_to_sheet(dataBook);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+            XLSX.writeFile(workbook, "ExportBook.csv");
+        }
+    }
+
     return (
         <>
             <Row gutter={[20, 20]}>
@@ -218,7 +229,7 @@ const BookTable = () => {
                                 type="primary" 
                                 icon={<ExportOutlined />} 
                                 size="large" 
-                                // onClick={() => handleExportData()}
+                                onClick={() => handleExportData()}
                             >  Export</Button>
                             <Button 
                                 style={{margin: "0 5px"}} 

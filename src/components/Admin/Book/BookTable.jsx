@@ -230,16 +230,7 @@ const BookTable = () => {
                                 icon={<ExportOutlined />} 
                                 size="large" 
                                 onClick={() => handleExportData()}
-                            >  Export</Button>
-                            <Button 
-                                style={{margin: "0 5px"}} 
-                                type="primary" 
-                                icon={<CloudUploadOutlined />} 
-                                size="large" 
-                                onClick={() => {
-                                    // setOpenModalImport(true)
-                                }}
-                            >Import</Button>
+                            >  Export</Button>                            
                             <Button 
                                 style={{margin: "0 5px"}} 
                                 type="primary" icon={<PlusOutlined />} 

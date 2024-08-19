@@ -11,6 +11,11 @@ export const deleteBookAPI = (_id) => {
     return axios.delete(URL_BACKEND)
 }
 
+export const callFetchBookById = (id) => {
+    return axios.get(`api/v1/book/${id}`)
+}
+
+
 export const callFetchCategory = () => { 
     const URL_BACKEND = `/api/v1/database/category`
     return axios.get(URL_BACKEND)

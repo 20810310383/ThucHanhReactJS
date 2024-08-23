@@ -20,6 +20,7 @@ import AdminPage from './pages/admin';
 import ProtectedRoute from './components/ProtectedRoute';
 import LayoutAdmin from './components/Admin/LayoutAdmin';
 import ManageUserPage from './pages/admin/user';
+import OrderPage from './pages/order';
 
 
 const Layout = () => {
@@ -85,6 +86,10 @@ export default function App() {
         {
           path: "book/:idBook",
           element: <BookPage />,
+        },
+        {
+          path: "order",
+          element: <OrderPage />,
         },
       ],
     },

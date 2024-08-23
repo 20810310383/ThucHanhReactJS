@@ -1,11 +1,13 @@
 import ImageGallery from "react-image-gallery";
 import './book.scss'
 import { useRef, useState } from "react";
-import { Col, Divider, Rate, Row } from "antd";
+import { Col, Divider, message, Rate, Row } from "antd";
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { BsCartPlus } from "react-icons/bs";
 import ModalViewImage from "./ModalViewDetail";
 import BookLoader from "./BookLoader";
+import { useDispatch } from "react-redux";
+import { doAddBookAction } from "../../redux/order/orderSlice";
 
 const ViewDetail = (props) => {
 
@@ -13,6 +15,9 @@ const ViewDetail = (props) => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     const refGallery = useRef(null);
+    const [currentQuantity, setCurrentQuantity] = useState(1);
+    const dispatch = useDispatch();
+
 
     const {dataBook} = props
 
@@ -89,6 +94,30 @@ const ViewDetail = (props) => {
         console.log('changed', value);
     };
 
+    const handleChangeButton = (type) => {
+        if (type === 'GIAM') {
+            if (currentQuantity - 1 <= 0) return;
+            setCurrentQuantity(currentQuantity - 1);
+        }
+        if (type === 'TANG') {
+            if (currentQuantity === +dataBook.quantity) return; //max
+            setCurrentQuantity(currentQuantity + 1);
+        }
+    }
+
+    const handleChangeInput = (value) => {
+        if (!isNaN(value)) {
+            if (+value > 0 && +value < +dataBook.quantity) {
+                setCurrentQuantity(+value);
+            }
+        }
+    }
+
+    const handleAddToCart = (quantity, book) => {
+        dispatch(doAddBookAction({ quantity, detail: book, _id: book._id }))
+    }
+
+
 
     return (
         <div style={{ background: '#efefef', padding: "20px 0" }}>
@@ -142,18 +171,19 @@ const ViewDetail = (props) => {
                                 <div className='quantity'>
                                         <span className='left'>Số lượng</span>
                                         <span className='right'>
-                                            <button ><MinusOutlined /></button>
-                                            <input defaultValue={1} />
-                                            <button><PlusOutlined /></button>
+                                            <button onClick={() => handleChangeButton("GIAM")}><MinusOutlined /></button>
+                                            <input onChange={(event) => handleChangeInput(event.target.value)} value={currentQuantity} />
+                                            <button onClick={() => handleChangeButton("TANG")}><PlusOutlined /></button>
                                         </span>
                                 </div>
                                 <div className='buy'>
-                                    <button className='cart'>
+                                    <button className='cart' onClick={() => handleAddToCart(currentQuantity, dataBook)}>
                                         <BsCartPlus className='icon-cart' />
                                         <span>Thêm vào giỏ hàng</span>
                                     </button>
                                     <button className='now'>Mua ngay</button>
                                 </div>
+
                             </Col>
                         </Col>
                     </Row>
